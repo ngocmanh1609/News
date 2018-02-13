@@ -2,17 +2,20 @@ package com.tintuc.entity;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by Hp on 2/7/2018.
  */
 
-public class PostEntity {
+public class PostEntity implements Serializable {
 
     private int id;
     private String title;
     private String desc;
     private String thumb;
     private int categoryId;
+    private String content;
 
     public PostEntity() {}
 
@@ -22,6 +25,15 @@ public class PostEntity {
         desc = jsonObject.optString("post_desc", "");
         thumb = jsonObject.optString("post_thumb", "");
         categoryId = jsonObject.optInt("category_id", 0);
+        content = jsonObject.optString("post_content", "");
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public int getId() {
@@ -72,6 +84,7 @@ public class PostEntity {
                 ", desc='" + desc + '\'' +
                 ", thumb='" + thumb + '\'' +
                 ", categoryId=" + categoryId +
+                ", content='" + content + '\'' +
                 '}';
     }
 }

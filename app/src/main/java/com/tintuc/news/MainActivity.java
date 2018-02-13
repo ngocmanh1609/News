@@ -1,6 +1,8 @@
 package com.tintuc.news;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -8,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -48,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
     private PostAdapter postAdapter;
 
+    private int categoryId = 1;
+
+    private TextView tvTitle;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -77,6 +86,21 @@ public class MainActivity extends AppCompatActivity {
         menuEntities.add(menuChinhTri);
 
         imgMenu = (ImageView) findViewById(R.id.img_menu);
+
+        tvTitle = (TextView) findViewById(R.id.tv_title);
+        tvTitle.setText(menuThoiSu.getTitle());
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                postEntities.clear();
+                postAdapter.notifyDataSetChanged();
+                getListPost();
+            }
+        });
+
         // configure the SlidingMenu
         final SlidingMenu menu = new SlidingMenu(this);
         menu.setMode(SlidingMenu.LEFT);
@@ -103,9 +127,18 @@ public class MainActivity extends AppCompatActivity {
                     entity.setSelected(false);
                 }
                 MenuEntity menuEntity = (MenuEntity) o;
+
+                tvTitle.setText(menuEntity.getTitle());
+
+                categoryId = menuEntity.getId();
+
                 menuEntity.setSelected(true);
                 menuAdapter.notifyDataSetChanged();
                 menu.toggle();
+
+                postEntities.clear();
+                postAdapter.notifyDataSetChanged();
+                getListPost();
             }
         });
 
@@ -120,17 +153,36 @@ public class MainActivity extends AppCompatActivity {
         rvPost.setLayoutManager(new LinearLayoutManager(this));
         rvPost.setItemAnimator(new DefaultItemAnimator());
 
-        postAdapter = new PostAdapter(postEntities);
+        postAdapter = new PostAdapter(postEntities, new AdapterListener() {
+            @Override
+            public void onItemClickListener(Object o, int pos, RecyclerView.ViewHolder holder) {
+                if (pos < postEntities.size()) {
+                    // click len bai post
+                    PostEntity postEntity = (PostEntity) o;
+                    Intent intent = new Intent(context, DetailActivity.class);
+                    intent.putExtra("post", postEntity);
+                    startActivity(intent);
+                } else {
+                    // click len nut load more
+                    getListPost();
+                }
+            }
+        });
 
         rvPost.setAdapter(postAdapter);
 
-        NewsApi.getListPost(context, 2, 10, 0, new HttpCallback() {
+        getListPost();
+    }
+
+    private void getListPost() {
+        NewsApi.getListPost(context, categoryId, 1, postEntities.size(), new HttpCallback() {
             @Override
             public void onSuccess(final String s) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
+                            swipeRefreshLayout.setRefreshing(false);
                             JSONArray jsonArray = new JSONArray(s);
                             for (int i = 0; i < jsonArray.length();++i) {
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -138,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                                 postEntities.add(postEntity);
                                 LogUtil.d("postEntity", postEntity.toString());
                             }
+                            postAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -152,24 +205,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Request request, IOException e) {
-
-            }
-        });
-
-        NewsApi.getPostDetail(context, 1, new HttpCallback() {
-            @Override
-            public void onSuccess(final String s) {
-
-            }
-
-            @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onFailure(Request request, IOException e) {
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(context, "Kết nối mạng bị lỗi, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
