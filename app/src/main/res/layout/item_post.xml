@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_200sdp">
+        <ImageView
+            android:id="@+id/img_thumb"
+            android:src="@drawable/sample_1"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <LinearLayout
+            android:background="@color/black_transparent"
+            android:padding="@dimen/_8sdp"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_title"
+                android:textStyle="bold"
+                android:lines="1"
+                android:textSize="@dimen/_14sdp"
+                android:textColor="@android:color/white"
+                android:text="Tuyển futsal Việt Nam - Đài Loan (Trung Quốc): Hẹn Uzbekistan ở tứ kết"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_desc"
+                android:textSize="@dimen/_12sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:lines="3"
+                android:textColor="@android:color/white"
+                android:text="(Video bóng đá futsal, kết quả bóng đá futsal, Đài Loan (Trung Quốc) - Việt Nam, giải Futsal châu Á 2018) Trận đấu quyết định vòng bảng giữa futsal Việt Nam với đội chủ nhà đã diễn ra vô cùng gay cấn, quyết liệt."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>
